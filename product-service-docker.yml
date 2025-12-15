@@ -1,1 +1,58 @@
+# En tu repositorio de Git: config-repo/product-service-docker.yml
 
+server:
+  port: 9090
+
+spring:
+  application:
+    name: product-service
+  
+  # 💥 CONFIGURACIÓN DE LA DB MOVILDA DESDE docker-compose 💥
+  datasource:
+    url: jdbc:postgresql://db_product:5432/product
+    username: product
+    password: product123
+    driver-class-name: org.postgresql.Driver
+
+# Configuración de Eureka (ya estaba en tu docker-compose)
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discovery-service:8761/eureka/
+    registry-fetch-interval-seconds: 10
+    instance-info-replication-interval-seconds: 10
+    enabled: true # Asegura que esté habilitado
+
+# Configuración de Paginación (movida desde docker-compose)
+pagination:
+  default-page: 0
+  default-size: 10
+  max-size: 100
+  default-sort-by: createdAt
+  default-sort-dir: desc
+  allowed-sort-fields: createdAt,updatedAt,code,description,unitPrice,currentStock
+
+# Configuración de Actuator y Config Server Retry
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,env,configprops,beans
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+spring:
+  cloud:
+    config:
+      fail-fast: false
+      retry:
+        max-attempts: 6
+        initial-interval: 3000
+
+# Propiedades de Spring Cloud (deshabilitamos el refresh para el entorno de contenedor)
+spring:
+  cloud:
+    refresh:
+      enabled: false
